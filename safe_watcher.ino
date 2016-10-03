@@ -1,4 +1,6 @@
 #include <LiquidCrystal.h>
+#include "DHT11.h"
+
 
 // initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);  
@@ -6,20 +8,7 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 const char NORMAL_STATUS = 'O';
 const char ERROR_STATUS = 'x';
 
-const int TEMP_PIN = 7;
-const int HUMIDITY_PIN = 6;
-const int SMOKE_PIN = 8;
-
-void setLiquidCrystal() {
-  // set up the LCD's number of columns and rows:
-  lcd.begin(16, 2);
-  // Print a message to the LCD.
-}
-
-void setTempAndHumidity() {
-  pinMode(TEMP_PIN, INPUT);
-  pinMode(HUMIDITY_PIN, INPUT);
-}
+const int SMOKE_PIN = A5;
 
 void setAirSmoke() {
   pinMode(SMOKE_PIN, INPUT);
@@ -35,16 +24,13 @@ void drawDateTime() {
 }
 
 void drawTempAndHumidity() {
-  char temp[4] = {'3', '5', 'C', ' '};
-  char humidity[4] = {'1', '2', '%', ' '};
+  DHT11_Read();
   
   lcd.setCursor(0, 1);
-  lcd.print(analogRead(TEMP_PIN));
-  lcd.print(analogRead(HUMIDITY_PIN));
-//  lcd.print(temp);
-//  lcd.setCursor(4, 1);
-//  lcd.print(humidity);
- 
+  lcd.print(TEM_Buffer_Int);
+  lcd.print("C");
+  lcd.print(HUMI_Buffer_Int);
+  lcd.print("%");
 }
 
 void drawAirSafeStatus() {
@@ -59,8 +45,10 @@ void drawAirSmokeStatus() {
   
   lcd.setCursor(11, 1);
   lcd.print(analogRead(SMOKE_PIN));
-}
 
+  Serial.println('S');
+  Serial.println(analogRead(SMOKE_PIN));
+}
 
 void drawDistanceStatus() {
   char distance[3] = {'D', NORMAL_STATUS, ' '};
@@ -70,20 +58,19 @@ void drawDistanceStatus() {
 }
 
 void setup() {
-  setLiquidCrystal();
-  setTempAndHumidity();
-  
-  drawDateTime();
-//  drawTempAndHumidity();
-  drawAirSafeStatus();
-//  drawAirSmokeStatus();
-  drawDistanceStatus();
+  // setup lcd
+  lcd.begin(16, 2);
+  Serial.begin(9600);
+
+  // setup temp
+  DHT11_Read();
+  delay(2000);
 }
 
 void loop() {
   drawTempAndHumidity();
-  drawAirSmokeStatus();
-  delay(1000);
-}
+  drawDateTime();
 
+  delay(500);
+}
 
