@@ -9,6 +9,8 @@ const char NORMAL_STATUS = 'O';
 const char ERROR_STATUS = 'x';
 
 const int SMOKE_PIN = A5;
+const int DISTANCE_TRIG_PIN = 9;
+const int DISTANCE_ECHO_PIN = 8;
 
 void setAirSmoke() {
   pinMode(SMOKE_PIN, INPUT);
@@ -51,10 +53,16 @@ void drawAirSmokeStatus() {
 }
 
 void drawDistanceStatus() {
-  char distance[3] = {'D', NORMAL_STATUS, ' '};
-  
-//  lcd.setCursor(14, 1);
-//  lcd.print(distance); 
+  digitalWrite(DISTANCE_TRIG_PIN, LOW); //  低高低电平发一个短时间脉冲去 TrigPin
+  delayMicroseconds(2);
+  digitalWrite(DISTANCE_TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(DISTANCE_TRIG_PIN, LOW);
+  float distance = float( pulseIn(DISTANCE_ECHO_PIN, HIGH) * 17 ) / 100000; //  将回波时间换算成m
+
+  lcd.setCursor(11, 1);
+  lcd.print(distance); 
+  lcd.print('m'); 
 }
 
 void setup() {
@@ -64,13 +72,18 @@ void setup() {
 
   // setup temp
   DHT11_Read();
+  
+  // setup distance
+  pinMode(DISTANCE_TRIG_PIN, OUTPUT);
+  pinMode(DISTANCE_ECHO_PIN, INPUT);
+  
   delay(2000);
 }
 
 void loop() {
   drawTempAndHumidity();
   drawDateTime();
-
+  drawDistanceStatus();
   delay(500);
 }
 
