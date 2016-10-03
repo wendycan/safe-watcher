@@ -3,13 +3,26 @@
 // initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);  
 
-char const NORMAL_STATUS = 'O';
-char const errorStatus = 'x';
+const char NORMAL_STATUS = 'O';
+const char ERROR_STATUS = 'x';
+
+const int TEMP_PIN = 7;
+const int HUMIDITY_PIN = 6;
+const int SMOKE_PIN = 8;
 
 void setLiquidCrystal() {
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
   // Print a message to the LCD.
+}
+
+void setTempAndHumidity() {
+  pinMode(TEMP_PIN, INPUT);
+  pinMode(HUMIDITY_PIN, INPUT);
+}
+
+void setAirSmoke() {
+  pinMode(SMOKE_PIN, INPUT);
 }
 
 void drawDateTime() {
@@ -26,9 +39,11 @@ void drawTempAndHumidity() {
   char humidity[4] = {'1', '2', '%', ' '};
   
   lcd.setCursor(0, 1);
-  lcd.print(temp);
-  lcd.setCursor(4, 1);
-  lcd.print(humidity);
+  lcd.print(analogRead(TEMP_PIN));
+  lcd.print(analogRead(HUMIDITY_PIN));
+//  lcd.print(temp);
+//  lcd.setCursor(4, 1);
+//  lcd.print(humidity);
  
 }
 
@@ -43,27 +58,32 @@ void drawAirSmokeStatus() {
   char smoke[3] = {'S', NORMAL_STATUS, ' '};
   
   lcd.setCursor(11, 1);
-  lcd.print(smoke);
+  lcd.print(analogRead(SMOKE_PIN));
 }
 
 
 void drawDistanceStatus() {
   char distance[3] = {'D', NORMAL_STATUS, ' '};
   
-  lcd.setCursor(14, 1);
-  lcd.print(distance); 
+//  lcd.setCursor(14, 1);
+//  lcd.print(distance); 
 }
 
 void setup() {
   setLiquidCrystal();
+  setTempAndHumidity();
+  
   drawDateTime();
-  drawTempAndHumidity();
+//  drawTempAndHumidity();
   drawAirSafeStatus();
-  drawAirSmokeStatus();
+//  drawAirSmokeStatus();
   drawDistanceStatus();
 }
 
 void loop() {
+  drawTempAndHumidity();
+  drawAirSmokeStatus();
+  delay(1000);
 }
 
 
